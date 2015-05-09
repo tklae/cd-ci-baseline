@@ -33,7 +33,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       docker-home instance
 
           * run 'docker ps' to see running containers
-          * see  /data/docker-boxes for available containers
+          * see  /docker-containers for available containers
 
     " > /etc/motd
   }
