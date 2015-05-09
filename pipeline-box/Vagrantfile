@@ -1,0 +1,51 @@
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  config.vm.box = "docker-home-box"
+  config.vm.box_url = "https://oss-binaries.phusionpassenger.com/vagrant/boxes/latest/ubuntu-14.04-amd64-vbox.box"
+
+  config.vm.provider "virtualbox" do |v|
+    v.name = "docker-home"
+  end
+
+  config.vm.network "private_network", :ip => "12.12.12.12"
+
+  script = %Q{
+    ln -sf /usr/share/zoneinfo/Europe/Amsterdam /etc/localtime
+
+    wget -q -O - https://get.docker.io/gpg | apt-key add -
+    echo deb http://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list
+    apt-get update -qq
+    apt-get install -q -y --force-yes lxc-docker jq supervisor
+    usermod -a -G docker vagrant
+    docker version
+
+    rm -f /etc/update-motd.d/*
+
+    echo "
+     .___             __
+    __| _/____   ____ |  | __ ___________
+   / __ |/  _ \_/ ___\|  |/ // __ \_  __ \
+  / /_/ (  <_> )  \___|    <\  ___/|  | \/
+  \____ |\____/ \___  >__|_ \\___  >__|
+       \/           \/     \/    \/
+
+      docker-home instance
+
+          * run 'docker ps' to see running containers
+          * see  /data/docker-boxes for available containers
+
+    " > /etc/motd
+  }
+
+  config.vm.synced_folder "docker-containers", "/docker-containers"
+  config.vm.provision :shell, :inline => script
+
+  config.vm.provider :virtualbox do |vb|
+     vb.customize ["modifyvm", :id, "--memory", "4096"]
+     vb.customize ["modifyvm", :id, "--cpus", "4"]
+     vb.customize ["modifyvm", :id, "--nestedpaging", "on"]
+     vb.customize ["modifyvm", :id, "--largepages", "on"]
+     vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+   end
+end

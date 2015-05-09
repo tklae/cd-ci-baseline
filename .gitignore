@@ -1,8 +1,5 @@
-.gradle
-build/
+.vagrant
 
-# Ignore Gradle GUI config
-gradle-app.setting
-
-# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
-!gradle-wrapper.jar
+# osx
+**/*.DS_Store
+.DS_Store
