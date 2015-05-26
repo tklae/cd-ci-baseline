@@ -24,12 +24,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     rm -f /etc/update-motd.d/*
 
     echo "
-     .___             __
-    __| _/____   ____ |  | __ ___________
-   / __ |/  _ \_/ ___\|  |/ // __ \_  __ \
-  / /_/ (  <_> )  \___|    <\  ___/|  | \/
-  \____ |\____/ \___  >__|_ \\___  >__|
-       \/           \/     \/    \/
+*      .___             __                   *
+*    __| _/____   ____ |  | __ ___________   *
+*   / __ |/  _ \_/ ___\|  |/ // __ \_  __ \  *
+*  / /_/ (  <_> )  \___|    <\  ___/|  | \/  *
+*  \____ |\____/ \___  >__|_ \\___  >__|     *
+*       \/           \/     \/    \/         *
 
       docker-home instance
 
@@ -40,6 +40,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   }
 
   config.vm.synced_folder "docker-containers", "/docker-containers"
+  config.vm.synced_folder "prod","/prod"
   config.vm.provision :shell, :inline => script
 
   config.vm.provider :virtualbox do |vb|
