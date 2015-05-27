@@ -33,7 +33,7 @@ RUN \
 	&& dpkg -i /tmp/go-agent.deb \
 	&& rm /tmp/go-agent.deb \
 	&& sed -r -i "s/^(GO_SERVER)=(.*)/\1=\$SERVER_PORT_8153_TCP_ADDR/g" /etc/default/go-agent
-ADD ~/.ssh/id_rsa.pub /root/.ssh/id_rsa  
+ADD id_rsa /root/.ssh/id_rsa
 VOLUME ["/var/lib/go-agent"]
 CMD test -n "${GO_RESOURCES}" && echo "agent.auto.register.resources=${GO_RESOURCES}" >> config/autoregister.properties; \
     test -n "${GO_ENVIRONMENTS}" && echo "agent.auto.register.environments=${GO_ENVIRONMENTS}" >> config/autoregister.properties; \
