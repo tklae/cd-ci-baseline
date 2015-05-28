@@ -19,6 +19,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     cat /home/vagrant/.ssh/id_rsa.pub >> /home/vagrant/.ssh/authorized_keys
     cp /home/vagrant/.ssh/id_rsa /docker-containers/gocd-agent
 
+    apt-get install unzip
+    apt-get -y install openjdk-7-jre-headless
+
     wget -q -O - https://get.docker.io/gpg | apt-key add -
     echo deb http://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list
     apt-get update -qq
