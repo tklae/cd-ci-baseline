@@ -20,6 +20,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     cat /home/vagrant/.ssh/id_rsa.pub >> /home/vagrant/.ssh/authorized_keys
     cp /home/vagrant/.ssh/id_rsa /docker-containers/gocd-agent
 
+    mkdir /prod
+    chown vagrant:vagrant /prod
+
     apt-get install unzip
     apt-get -y install openjdk-7-jre-headless
 
@@ -49,7 +52,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   }
 
   config.vm.synced_folder "docker-containers", "/docker-containers"
-  config.vm.synced_folder "prod","/prod"
   config.vm.provision :shell, :inline => script
 
   config.vm.provider :virtualbox do |vb|
