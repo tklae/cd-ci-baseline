@@ -20,10 +20,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     cat /home/vagrant/.ssh/id_rsa.pub >> /home/vagrant/.ssh/authorized_keys
     cp /home/vagrant/.ssh/id_rsa /docker-containers/gocd-agent
 
-    mkdir /
-    mkdir /prod
-    chown vagrant:vagrant /dev
-    chown vagrant:vagrant /prod
+    mkdir -p /environment/dev
+    mkdir -p /environment/prod
+    chown vagrant:vagrant /environment/dev
+    chown vagrant:vagrant /environment/prod
 
     apt-get install unzip
     apt-get -y install openjdk-7-jre-headless
