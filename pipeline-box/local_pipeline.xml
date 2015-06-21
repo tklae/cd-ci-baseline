@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="75">
+  <server artifactsdir="artifacts" agentAutoRegisterKey="goGoCD" commandRepositoryLocation="default" serverId="864d469b-a752-4e1f-b7f9-32eda3c114f6" />
+  <pipelines group="gotoAm">
+    <pipeline name="master">
+      <materials>
+        <git url="https://github.com/tklae/goto-services.git" />
+      </materials>
+      <stage name="buildStage">
+        <jobs>
+          <job name="build_test">
+            <tasks>
+              <exec command="/bin/bash">
+                <arg>-c</arg>
+                <arg>./gradlew clean test buildDist</arg>
+                <runif status="passed" />
+              </exec>
+            </tasks>
+            <artifacts>
+              <test src="build/test-results" dest="unit-tests" />
+              <artifact src="build/dist" />
+            </artifacts>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="deployStage">
+        <jobs>
+          <job name="deploy">
+            <tasks>
+              <fetchartifact pipeline="master" stage="buildStage" job="build_test" srcdir="dist/">
+                <runif status="passed" />
+              </fetchartifact>
+              <exec command="/bin/bash">
+                <arg>-c</arg>
+                <arg>./infra/scripts/deploy.sh</arg>
+                <runif status="passed" />
+              </exec>
+            </tasks>
+            <artifacts>
+              <artifact src="dist" />
+            </artifacts>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="runStage">
+        <jobs>
+          <job name="run">
+            <environmentvariables>
+              <variable name="HEALTHCHECK_HOST">
+                <value>12.12.12.12:8093</value>
+              </variable>
+            </environmentvariables>
+            <tasks>
+              <fetchartifact pipeline="master" stage="deployStage" job="deploy" srcdir="dist">
+                <runif status="passed" />
+              </fetchartifact>
+              <exec command="/bin/bash">
+                <arg>-c</arg>
+                <arg>./infra/scripts/run.sh</arg>
+                <runif status="passed" />
+              </exec>
+              <exec command="/bin/bash">
+                <arg>-c</arg>
+                <arg>./infra/scripts/healthcheck.sh</arg>
+                <runif status="passed" />
+              </exec>
+            </tasks>
+            <artifacts>
+              <artifact src="dist" />
+            </artifacts>
+          </job>
+        </jobs>
+      </stage>
+    </pipeline>
+    <pipeline name="sandboxer">
+      <materials>
+        <git url="https://github.com/tobivogel/sandboxer.git" />
+      </materials>
+      <stage name="buildStage">
+        <jobs>
+          <job name="build_test">
+            <tasks>
+              <exec command="/bin/bash">
+                <arg>-c</arg>
+                <arg>./buildDistribution.sh</arg>
+                <runif status="passed" />
+              </exec>
+            </tasks>
+            <artifacts>
+              <test src="build/test-results" dest="unit-tests" />
+              <artifact src="build/dist/dist-*zip" />
+            </artifacts>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="deployStage">
+        <jobs>
+          <job name="deploy">
+            <tasks>
+              <fetchartifact pipeline="sandboxer" stage="buildStage" job="build_test" srcfile="dist-sandboxer.zip">
+                <runif status="passed" />
+              </fetchartifact>
+              <exec command="/bin/bash">
+                <arg>-c</arg>
+                <arg>./infra/scripts/deploy.sh</arg>
+                <runif status="passed" />
+              </exec>
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+      <stage name="runStage">
+        <environmentvariables>
+          <variable name="HEALTHCHECK_HOST">
+            <value>12.12.12.12:8091</value>
+          </variable>
+        </environmentvariables>
+        <jobs>
+          <job name="runSandboxer">
+            <environmentvariables>
+              <variable name="HOST">
+                <value>12.12.12.12:8091</value>
+              </variable>
+            </environmentvariables>
+            <tasks>
+              <exec command="/bin/bash">
+                <arg>-c</arg>
+                <arg>./infra/scripts/run.sh</arg>
+                <runif status="passed" />
+              </exec>
+              <exec command="/bin/bash">
+                <arg>-c</arg>
+                <arg>./infra/scripts/healthcheck.sh</arg>
+                <runif status="passed" />
+              </exec>
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+    </pipeline>
+  </pipelines>
+  <agents>
+    <agent hostname="8e98563fc6d8" ipaddress="172.17.0.2" uuid="4d6c59ae-d3fe-4e1c-ada7-e030a072301a" />
+  </agents>
+</cruise>
+
